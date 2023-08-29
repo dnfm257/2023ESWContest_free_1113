@@ -90,7 +90,7 @@ void loop()
 
   Serial.println(n);
 
-  CP(); //재실인원함수
+  CP(); //재실인원함수(Count Person)
 
   if(n > 0) //침수시 경고 알림
   {
