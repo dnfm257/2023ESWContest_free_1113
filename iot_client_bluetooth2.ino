@@ -311,7 +311,7 @@ void CP()
    // 만약 측정이 잘못된 이후 사람의 출입이 있었다면 나오는 오류 수정 필요 08/31
     if(i<o) // 들어가려다 나옴 = 들어가지 않음
     {
-      if((checkTime-OUTTime)>5000)
+     /* if((checkTime-OUTTime)>5000)
         {
             if(INTime>OUTTime) //측정오류 이후 사람이 나가(OUTTime sensor->INTime sensor) 마지막으로 기록된 시간이 INTime sensor의 시간인 경
             {
@@ -319,28 +319,28 @@ void CP()
               i++; // 나간 사람에 대한 보정
               j=0;
             }
-            else
-            {
+            else*/
+           // {
               o--;
-              j=0;
-            }
+             // j=0;
+            //}
         }
     }
     else if(i>o) // 나가려다 들어옴 = 나가지 않음
     {
       if((checkTime-INTime)>5000)
         {
-          if(OUTTime>INTime) //측정오류 이후 사람이 들어와(INTime sensor->OUTTime sensor) 마지막으로 기록된 시간이 OUTTime sensor의 시간인 경우
+          /*if(OUTTime>INTime) //측정오류 이후 사람이 들어와(INTime sensor->OUTTime sensor) 마지막으로 기록된 시간이 OUTTime sensor의 시간인 경우
           {
             n++; //사람이 들어갔기 때문에 보정
             o++; // 들어간 사람에 대한 보정
             j=0;
           }
-          else
-          {
+          else*/
+         // {
             i--;
-            j=0;
-          }
+           // j=0;
+         // }
         }
     }
   }
