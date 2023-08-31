@@ -50,6 +50,7 @@ int i=0,o=0;
 int IN=0,OUT=0;
 int val = 0;
 int R;
+int j=0;
 unsigned long INTime = 0; 
 unsigned long OUTTime = 0;
 unsigned long checkTime = 0;
@@ -306,19 +307,40 @@ void CP()
   if(i!=o) // 센서값 불일치할 때
   {
     checkTime = millis();
-   
+    j=1; //측정시간 오차를 수정하기 위한 변수
+   // 만약 측정이 잘못된 이후 사람의 출입이 있었다면 나오는 오류 수정 필요 08/31
     if(i<o) // 들어가려다 나옴 = 들어가지 않음
     {
       if((checkTime-OUTTime)>5000)
         {
-          o--;
+            if(INTime>OUTTime) //측정오류 이후 사람이 나가(OUTTime sensor->INTime sensor) 마지막으로 기록된 시간이 INTime sensor의 시간인 경
+            {
+              n--; //사람이 나갔기 때문에 보정
+              i++; // 나간 사람에 대한 보정
+              j=0;
+            }
+            else
+            {
+              o--;
+              j=0;
+            }
         }
     }
     else if(i>o) // 나가려다 들어옴 = 나가지 않음
     {
       if((checkTime-INTime)>5000)
         {
-          i--;
+          if(OUTTime>INTime) //측정오류 이후 사람이 들어와(INTime sensor->OUTTime sensor) 마지막으로 기록된 시간이 OUTTime sensor의 시간인 경우
+          {
+            n++; //사람이 들어갔기 때문에 보정
+            o++; // 들어간 사람에 대한 보정
+            j=0;
+          }
+          else
+          {
+            i--;
+            j=0;
+          }
         }
     }
   }
@@ -326,6 +348,10 @@ void CP()
   {
     if(OUTTime<INTime)
     {
+      if(j=1)
+      {
+        //
+      }
       INTime=0;
       OUTTime=0;
 
