@@ -4,16 +4,21 @@
   작성일 : 2022.12.19
   작성자 : IoT 임베디드 KSH
 */
+/*
+  긴급수정:
+  "원본파일 손상"
+  작성일:2023.09.08
+  작성자:JSHTIRED
+*/
 #include <SoftwareSerial.h>
 #include <Wire.h>
-#include <DHT.h>
 #include <MsTimer2.h>
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 #define DEBUG
-#define CDS_PIN A1
+#define CDS_PIN  1
 #define BUTTON_PIN 2
 //#define LED_BUILTIN_PIN 13
 #define Water A0
@@ -24,6 +29,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 #define Buzzer1 6
 #define GREENLED 12
 #define REDLED 13
+#define TRIG 9
+#define ECHO 8 
 
 #define Total 20
 #define DHTTYPE DHT11
@@ -50,11 +57,13 @@ int i=0,o=0;
 int IN=0,OUT=0;
 int val = 0;
 int R;
-int j=0;
+int j=0,idt=0,odt=0,it=0,ot=0; 
 unsigned long INTime = 0; 
 unsigned long OUTTime = 0;
 unsigned long checkTime = 0;
 unsigned long setTime = 0;
+int distance=0, duration=0;
+int y=0;
 SoftwareSerial BTSerial(10, 11); // RX ==>BT:TXD, TX ==> BT:RXD
 
 void setup()
@@ -76,6 +85,9 @@ void setup()
   pinMode(OUTSIDE, INPUT);
   pinMode(Water,INPUT);
   pinMode(Buzzer1,OUTPUT);
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+
   BTSerial.begin(9600); // set the data rate for the SoftwareSerial port
   //MsTimer2::set(1000, timerIsr); // 1000ms period
   //MsTimer2::start();
@@ -86,9 +98,12 @@ void loop()
   IN = digitalRead(INSIDE);
   OUT = digitalRead(OUTSIDE);
   val = analogRead(Water);
-
+  //IN = analogRead(INSIDE);
+ // OUT = analogRead(OUTSIDE);
+ // Serial.println(IN);
+  //Serial.println(OUT);
   setTime = millis();
-
+  echo();
   Serial.println(n);
 
   CP(); //재실인원함수(Count Person)
@@ -272,15 +287,18 @@ void emergency()
   lcdDisplay(0, 0, lcdLine1);
   lcdDisplay(0, 1, lcdLine2);
 
-  sprintf(sendBuf, "[%s]emergency@%d\n", recvId, n);
+  sprintf(sendBuf, "[%s]emergency@%d\n", "119", n);
   BTSerial.write(sendBuf);
 
   delay(5);
-
+  sprintf(sendBuf, "[%s]emergency@%d\n", "order", n);
+  BTSerial.write(sendBuf);
+  sprintf(sendBuf, "[%s]emergency@%d\n", "HC_COM", n);
+  BTSerial.write(sendBuf);
   sprintf(sendBuf, "[%s]emergency@%d\n", "KSH_STM", n);
   BTSerial.write(sendBuf);
 
-  val = digitalRead(Water); // 워터센서 읽기
+  val = analogRead(Water); // 워터센서 읽기
   digitalWrite(GREENLED, HIGH);
 
   delay(500);
@@ -303,45 +321,36 @@ void CP()
     OUTTime = millis();
     Serial.println("o++");
   }
-
+//계단을 정확하게 측정할려면 81cm정도의 값이 필요할 것으로 예상 
+//두명이 동시에 들어오거나 나가면 밀착한 상태로 나가기 때문에 10cm미만의 거리라고 추정
   if(i!=o) // 센서값 불일치할 때
   {
     checkTime = millis();
-    j=1; //측정시간 오차를 수정하기 위한 변수
-   // 만약 측정이 잘못된 이후 사람의 출입이 있었다면 나오는 오류 수정 필요 08/31
-    if(i<o) // 들어가려다 나옴 = 들어가지 않음
+    if(y>0) //두명동시에 입출입이있을 경우
     {
-      if((checkTime-OUTTime)>5000)
-        {
-            if(INTime>OUTTime) //측정오류 이후 사람이 나가(OUTTime sensor->INTime sensor) 마지막으로 기록된 시간이 INTime sensor의 시간인 경
-            {
-              n--; //사람이 나갔기 때문에 보정
-              i++; // 나간 사람에 대한 보정
-              j=0;
-            }
-            else
-            {
-              o--;
-              j=0;
-            }
-        }
+      n--;
+      i==o;
+      y==0;
     }
-    else if(i>o) // 나가려다 들어옴 = 나가지 않음
+   // 만약 측정이 잘못된 이후 사람의 출입이 있었다면 나오는 오류 수정 필요 08/31
+    else
     {
-      if((checkTime-INTime)>5000)
-        {
-          if(OUTTime>INTime) //측정오류 이후 사람이 들어와(INTime sensor->OUTTime sensor) 마지막으로 기록된 시간이 OUTTime sensor의 시간인 경우
+      if(i<o) // 들어가려다 나옴 = 들어가지 않음
+      {
+      if((checkTime-OUTTime)>5000)
           {
-            n++; //사람이 들어갔기 때문에 보정
-            o++; // 들어간 사람에 대한 보정
-            j=0;
+              o--;
           }
-          else*/
+      }
+      else if(i>o) // 나가려다 들어옴 = 나가지 않음
+      {
+        if((checkTime-INTime)>5000)
           {
-            i--;
-            j=0;
+
+              i--;
+
           }
-        }
+      }
     }
   }
   else if(i==o)  // 센서값 일치할 때
@@ -383,7 +392,7 @@ void CP()
       Serial.print("val= ");
       Serial.println(val);
 
-      if(val!=HIGH)
+      if(val<300)
       {
         sprintf(sendBuf, "[%s]AAA@%d\n", recvId, R);
         BTSerial.write(sendBuf);
@@ -391,6 +400,39 @@ void CP()
         sprintf(sendBuf, "[%s]AAA@%d\n", "KSH_STM", R);
         BTSerial.write(sendBuf);
       }
+      else if(val>300)
+      {
+         sprintf(sendBuf, "[%s]flood\n", recvId);
+        BTSerial.write(sendBuf);
+        delay(5);
+        sprintf(sendBuf, "[%s]flood\n", "KSH_STM");
+        BTSerial.write(sendBuf);
+      }
     }
   }
+}
+void echo()
+{
+  digitalWrite(TRIG, LOW);
+
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG, HIGH);
+
+  delayMicroseconds(10);
+
+  digitalWrite(TRIG, LOW);
+
+  duration = pulseIn (ECHO, HIGH);
+  
+  distance = duration * 17 / 1000; 
+  if(distance<10)
+    y==1;
+  Serial.println(duration );
+
+  Serial.print("\nDIstance : ");
+
+  Serial.print(distance);
+
+  Serial.println(" Cm");
 }
