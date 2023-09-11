@@ -36,6 +36,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 #define DHTTYPE DHT11
 #define CMD_SIZE 60
 
+//이름 KSH_STM: 관리인, order: 거주자, HC_COM: 재난관리 센터, 119: 119, KSH_SQL: 확인용 ;(0911)
+
 
 char sendBuf[CMD_SIZE];
 char recvBuf[CMD_SIZE];
