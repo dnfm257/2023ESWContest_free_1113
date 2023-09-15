@@ -4,12 +4,14 @@
   작성일 : 2022.12.19
   작성자 : IoT 임베디드 KSH
 */
+//파일수정시 기록하는 공간 시작
 /*
   긴급수정:
   "원본파일 손상"
   작성일:2023.09.08
   작성자:JSHTIRED
 */
+//파일 수정시 기록하는 공간 종료
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <MsTimer2.h>
