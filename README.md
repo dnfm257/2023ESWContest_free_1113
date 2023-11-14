@@ -34,3 +34,8 @@
 1012 - QA문서 PDF(4444.pdf)버전 올림  
 */  
 *******
+
+![구상도1](https://github.com/dnfm257/2023ESWContest_free_1113/assets/143377935/c3abb5b5-275d-4972-907e-986f000fc216)
+![구상도2](https://github.com/dnfm257/2023ESWContest_free_1113/assets/143377935/462bdb3a-1c8c-455d-9b4b-8dace6ce32ff)
+![ㅂㅂㅂㅂ](https://github.com/dnfm257/2023ESWContest_free_1113/assets/143377935/29207f09-fb08-4d39-a457-1ff8fbbf2a94)
+![image](https://github.com/dnfm257/2023ESWContest_free_1113/assets/143377935/6a883245-ce7f-452e-aff6-486ad55f433a)
