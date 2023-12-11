@@ -38,3 +38,36 @@
 ![구상도2](https://github.com/dnfm257/2023ESWContest_free_1113/assets/143377935/462bdb3a-1c8c-455d-9b4b-8dace6ce32ff)
 ![ㅂㅂㅂㅂ](https://github.com/dnfm257/2023ESWContest_free_1113/assets/143377935/29207f09-fb08-4d39-a457-1ff8fbbf2a94)
 ![image](https://github.com/dnfm257/2023ESWContest_free_1113/assets/143377935/6a883245-ce7f-452e-aff6-486ad55f433a)
+
+
+
+```mermaid
+sequenceDiagram
+    participant sensor
+    participant admin
+    participant server
+    participant user
+    participant 911
+
+    loop run
+        loop counting_person
+            sensor->>sensor: counting person
+            sensor->>server: send person number
+            server->>admin: work by number of person
+        end
+
+        loop if_flood
+            loop if_person_0
+                sensor->>sensor: counting_person
+                sensor->>server: send flood message
+                server->>user: "flood your area"
+            end
+            loop else
+                sensor->>sensor: counting_person
+                sensor->>server: send emergency call
+                server->>user: "emergency: n"
+                server->>911: "emergency: n, position"
+            end
+        end
+    end
+```
